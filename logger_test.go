@@ -75,7 +75,10 @@ func ExampleNewPatternLayout() {
 	defer log4go.MockClock(nil)
 
 	log4go.Root().AddAppenders(
-		appenders.NewConsoleAppender(layouts.NewPatternLayout("%d{2006-01-02T15:04:05.000-07:00MST} %p [%c] %m %x")))
+		appenders.NewConsoleAppender(layouts.NewPatternLayout(layouts.PatterLayoutParams{
+			Pattern:    "%d{2006-01-02T15:04:05.000-07:00MST} %p [%c] %m %x",
+			AutoColors: true,
+		})))
 
 	runOperations()
 

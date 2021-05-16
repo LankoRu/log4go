@@ -9,22 +9,41 @@ import (
 	"strings"
 	"time"
 
+	"github.com/fatih/color"
+
 	"github.com/lankoru/log4go/event"
+	"github.com/lankoru/log4go/levels"
 )
 
 type patternLayout struct {
-	Pattern string
-	created int64
-	re      *regexp.Regexp
+	params          PatterLayoutParams
+	created         int64
+	re              *regexp.Regexp
+	levelPainters   map[levels.LogLevel]func(...interface{}) string
+	categoryPainter func(...interface{}) string
+}
+
+type PatterLayoutParams struct {
+	Pattern    string
+	AutoColors bool
 }
 
 var defaultPatternTimeLayout = "2006-01-02 15:04:05.000000000 -0700 MST"
 
-func NewPatternLayout(pattern string) Layout {
+func NewPatternLayout(params PatterLayoutParams) Layout {
 	return &patternLayout{
-		Pattern: pattern,
+		params:  params,
 		re:      regexp.MustCompile("%(\\w|%)(?:{([^}]+)})?"),
 		created: time.Now().UnixNano(),
+		levelPainters: map[levels.LogLevel]func(...interface{}) string{
+			levels.LevelFatal:    color.New(color.FgRed).SprintFunc(),
+			levels.LevelCritical: color.New(color.FgRed).SprintFunc(),
+			levels.LevelError:    color.New(color.FgRed).SprintFunc(),
+			levels.LevelWarn:     color.New(color.FgYellow).SprintFunc(),
+			levels.LevelInfo:     color.New(color.FgGreen).SprintFunc(),
+			levels.LevelDebug:    color.New(color.FgBlue).SprintFunc(),
+			levels.LevelTrace:    color.New(color.FgBlue).SprintFunc(),
+		},
 	}
 }
 
@@ -51,11 +70,23 @@ func getCaller() *caller {
 	return nil
 }
 
+func (pl patternLayout) levelString(ev event.LogEvent) string {
+	if !pl.params.AutoColors {
+		return ev.LogLevel.String()
+	}
+
+	if f, ok := pl.levelPainters[ev.LogLevel]; ok {
+		return f(ev.LogLevel.String())
+	}
+
+	return ev.LogLevel.String()
+}
+
 func (pl patternLayout) Format(ev event.LogEvent) []byte {
 	cl := getCaller()
 	r := ev.TimeStamp.UnixNano()
 
-	msg := pl.re.ReplaceAllStringFunc(pl.Pattern, func(m string) string {
+	msg := pl.re.ReplaceAllStringFunc(pl.params.Pattern, func(m string) string {
 		parts := pl.re.FindStringSubmatch(m)
 		switch parts[1] {
 		case "c":
@@ -79,7 +110,7 @@ func (pl patternLayout) Format(ev event.LogEvent) []byte {
 			// skip new line separator, we will append it in the end
 			return ""
 		case "p":
-			return ev.LogLevel.String()
+			return pl.levelString(ev)
 		case "r":
 			return strconv.FormatInt((r-pl.created)/100000, 10)
 		case "x":

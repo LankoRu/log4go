@@ -13,7 +13,7 @@ import (
 type simpleLayout struct {
 	params SimpleLayoutParams
 
-	levelColors map[levels.LogLevel]func(...interface{}) string
+	levelPainters map[levels.LogLevel]func(...interface{}) string
 }
 
 type SimpleLayoutParams struct {
@@ -23,7 +23,7 @@ type SimpleLayoutParams struct {
 func NewSimpleLayout(params SimpleLayoutParams) Layout {
 	return &simpleLayout{
 		params: params,
-		levelColors: map[levels.LogLevel]func(...interface{}) string{
+		levelPainters: map[levels.LogLevel]func(...interface{}) string{
 			levels.LevelFatal:    color.New(color.FgRed).SprintFunc(),
 			levels.LevelCritical: color.New(color.FgRed).SprintFunc(),
 			levels.LevelError:    color.New(color.FgRed).SprintFunc(),
@@ -40,7 +40,7 @@ func (sl simpleLayout) levelString(ev event.LogEvent) string {
 		return ev.LogLevel.String()
 	}
 
-	if f, ok := sl.levelColors[ev.LogLevel]; ok {
+	if f, ok := sl.levelPainters[ev.LogLevel]; ok {
 		return f(ev.LogLevel.String())
 	}
 
