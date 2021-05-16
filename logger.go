@@ -14,12 +14,18 @@ type Logger interface {
 	Parent() Logger
 	GetSubLogger(name string) Logger
 
-	AddAppender(a appenders.Appender)
+	AddAppenders(a ...appenders.Appender)
 
 	Log(ev event.LogEvent)
 
 	WithFields(fields event.FieldsMap) *Ctx
 	WithField(key string, value interface{}) *Ctx
 
+	Fatalf(format string, args ...interface{})
+	Critf(format string, args ...interface{})
+	Errorf(format string, args ...interface{})
+	Warnf(format string, args ...interface{})
 	Infof(format string, args ...interface{})
+	Debugf(format string, args ...interface{})
+	Tracef(format string, args ...interface{})
 }

@@ -43,12 +43,72 @@ func (c *Ctx) WithFields(fields event.FieldsMap) *Ctx {
 	return c
 }
 
+func (c *Ctx) Fatalf(format string, args ...interface{}) {
+	c.mut.Lock()
+	defer c.mut.Unlock()
+
+	c.ev.Message = fmt.Sprintf(format, args...)
+	c.ev.LogLevel = levels.LevelFatal
+
+	c.logger.Log(c.ev)
+}
+
+func (c *Ctx) Critf(format string, args ...interface{}) {
+	c.mut.Lock()
+	defer c.mut.Unlock()
+
+	c.ev.Message = fmt.Sprintf(format, args...)
+	c.ev.LogLevel = levels.LevelCritical
+
+	c.logger.Log(c.ev)
+}
+
+func (c *Ctx) Errorf(format string, args ...interface{}) {
+	c.mut.Lock()
+	defer c.mut.Unlock()
+
+	c.ev.Message = fmt.Sprintf(format, args...)
+	c.ev.LogLevel = levels.LevelError
+
+	c.logger.Log(c.ev)
+}
+
+func (c *Ctx) Warnf(format string, args ...interface{}) {
+	c.mut.Lock()
+	defer c.mut.Unlock()
+
+	c.ev.Message = fmt.Sprintf(format, args...)
+	c.ev.LogLevel = levels.LevelWarn
+
+	c.logger.Log(c.ev)
+}
+
 func (c *Ctx) Infof(format string, args ...interface{}) {
 	c.mut.Lock()
 	defer c.mut.Unlock()
 
 	c.ev.Message = fmt.Sprintf(format, args...)
 	c.ev.LogLevel = levels.LevelInfo
+
+	c.logger.Log(c.ev)
+}
+
+func (c *Ctx) Debugf(format string, args ...interface{}) {
+	c.mut.Lock()
+	defer c.mut.Unlock()
+
+	c.ev.Message = fmt.Sprintf(format, args...)
+	c.ev.LogLevel = levels.LevelDebug
+
+	c.logger.Log(c.ev)
+}
+
+func (c *Ctx) Tracef(format string, args ...interface{}) {
+	c.mut.Lock()
+	defer c.mut.Unlock()
+
+	c.ev.Message = fmt.Sprintf(format, args...)
+	c.ev.LogLevel = levels.LevelTrace
 
 	c.logger.Log(c.ev)
 }

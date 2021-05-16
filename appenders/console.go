@@ -7,15 +7,23 @@ import (
 	"github.com/lankoru/log4go/layouts"
 )
 
-type ConsoleAppender struct {
-	Layout layouts.Layout
-	Target *os.File
+type consoleAppender struct {
+	target *os.File
+
+	layout layouts.Layout
 }
 
-func (cl ConsoleAppender) GetName() string {
+func NewConsoleAppender(layout layouts.Layout) Appender {
+	return &consoleAppender{
+		target: os.Stdout,
+		layout: layout,
+	}
+}
+
+func (ca consoleAppender) GetName() string {
 	return "console"
 }
 
-func (cl ConsoleAppender) Append(ev event.LogEvent) {
-	_, _ = cl.Target.Write(cl.Layout.Format(ev))
+func (ca consoleAppender) Append(ev event.LogEvent) {
+	_, _ = ca.target.Write(ca.layout.Format(ev))
 }
