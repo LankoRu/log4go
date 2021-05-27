@@ -130,5 +130,5 @@ func (pl patternLayout) Format(ev event.LogEvent) []byte {
 		return m
 	})
 
-	return []byte(strings.TrimSpace(msg) + string(newLine))
+	return []byte(strings.TrimSpace(msg) + string(_newLine))
 }

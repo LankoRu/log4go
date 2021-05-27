@@ -1,3 +1,3 @@
 package layouts
 
-var newLine = []byte("\n")
+var _newLine = []byte("\n")

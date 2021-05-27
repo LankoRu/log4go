@@ -54,18 +54,25 @@ func ExampleNewJSONLayout() {
 	defer log4go.MockClock(nil)
 
 	log4go.Root().AddAppenders(
-		appenders.NewConsoleAppender(layouts.NewJSONLayout()),
+		appenders.NewConsoleAppender(layouts.NewJSONLayout(layouts.JSONLayoutParams{HideTimestamp: false})),
+		appenders.NewConsoleAppender(layouts.NewJSONLayout(layouts.JSONLayoutParams{HideTimestamp: true})),
 	)
 
 	runOperations()
 
 	// Output:
 	// {"msg":"message 1","lvl":"crit","timestamp":"2020-01-01T00:00:00Z"}
+	// {"msg":"message 1","lvl":"crit"}
 	// {"msg":"message 2","lvl":"error","timestamp":"2020-01-01T00:00:00Z","fields":{"key":"value"}}
+	// {"msg":"message 2","lvl":"error","fields":{"key":"value"}}
 	// {"msg":"message 3","lvl":"warn","timestamp":"2020-01-01T00:00:00Z","category":"sub","fields":{"key":"value"}}
+	// {"msg":"message 3","lvl":"warn","category":"sub","fields":{"key":"value"}}
 	// {"msg":"message 4","lvl":"info","timestamp":"2020-01-01T00:00:00Z","category":"sub","fields":{"key":"value"}}
+	// {"msg":"message 4","lvl":"info","category":"sub","fields":{"key":"value"}}
 	// {"msg":"message 5","lvl":"debug","timestamp":"2020-01-01T00:00:00Z","category":"sub","fields":{"key":"value"}}
+	// {"msg":"message 5","lvl":"debug","category":"sub","fields":{"key":"value"}}
 	// {"msg":"message 6","lvl":"trace","timestamp":"2020-01-01T00:00:00Z","category":"sub","fields":{"key":"value"}}
+	// {"msg":"message 6","lvl":"trace","category":"sub","fields":{"key":"value"}}
 }
 
 func ExampleNewPatternLayout() {
@@ -99,7 +106,7 @@ func ExampleAllLayouts() {
 
 	log4go.Root().AddAppenders(
 		appenders.NewConsoleAppender(layouts.NewSimpleLayout(layouts.SimpleLayoutParams{AutoColors: true})),
-		appenders.NewConsoleAppender(layouts.NewJSONLayout()),
+		appenders.NewConsoleAppender(layouts.NewJSONLayout(layouts.JSONLayoutParams{})),
 	)
 
 	runOperations()

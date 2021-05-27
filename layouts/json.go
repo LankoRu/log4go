@@ -10,29 +10,38 @@ import (
 )
 
 type jsonLayout struct {
+	params JSONLayoutParams
 }
 
-func NewJSONLayout() Layout {
-	return &jsonLayout{}
+type JSONLayoutParams struct {
+	HideTimestamp bool
+}
+
+func NewJSONLayout(params JSONLayoutParams) Layout {
+	return &jsonLayout{params: params}
 }
 
 func (jl jsonLayout) Format(ev event.LogEvent) []byte {
 	type jsonMessageModel struct {
 		Msg       string                 `json:"msg"`
 		Lvl       string                 `json:"lvl"`
-		TimeStamp time.Time              `json:"timestamp"`
+		TimeStamp *time.Time             `json:"timestamp,omitempty"`
 		Category  string                 `json:"category,omitempty"`
 		Fields    map[string]interface{} `json:"fields,omitempty"`
 	}
 
-	bb, err := json.Marshal(&jsonMessageModel{
-		Msg:       ev.Message,
-		Lvl:       strings.ToLower(ev.LogLevel.String()),
-		TimeStamp: ev.TimeStamp,
-		Fields:    ev.Fields,
-		Category:  ev.Category,
-	})
-	bb = append(bb, newLine...)
+	m := jsonMessageModel{
+		Msg:      ev.Message,
+		Lvl:      strings.ToLower(ev.LogLevel.String()),
+		Fields:   ev.Fields,
+		Category: ev.Category,
+	}
+	if !jl.params.HideTimestamp {
+		m.TimeStamp = &ev.TimeStamp
+	}
+
+	bb, err := json.Marshal(&m)
+	bb = append(bb, _newLine...)
 	if err != nil {
 		fmt.Printf("json construction failed - %v\n", err)
 		return nil

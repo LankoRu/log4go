@@ -61,5 +61,5 @@ func (sl simpleLayout) Format(ev event.LogEvent) []byte {
 
 	msg := strings.TrimSpace(sb.String())
 
-	return []byte(msg + string(newLine))
+	return []byte(msg + string(_newLine))
 }
